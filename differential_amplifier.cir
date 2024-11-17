@@ -1,0 +1,38 @@
+CMOS Differential Amplifier Circuit
+
+* Power Supply
+VDD Vdd 0 DC 1.8               ; Vdd set to 1.8V
+
+* Input Signals (Differential Inputs)
+Vin_plus Vplus 0 SIN(0.9 0.1 1k)     ; Sinusoidal input for V+ (positive input)
+Vin_minus Vminus 0 SIN(0.9 0.1 1k 180) ; Sinusoidal input for V- (negative input with 180-degree phase shift)
+
+* Reference Voltage (Biasing)
+Vref Vref 0 DC 0.9                   ; Reference voltage (bias voltage for NMOS current source)
+
+* Transistor Models (Using LEVEL=1 for simplicity, can be modified)
+.model NMOS NMOS (LEVEL=1 KP=120u VTO=0.4)
+.model PMOS PMOS (LEVEL=1 KP=50u VTO=-0.4)
+
+* PMOS Transistors (M1 and M2 at the top, forming the differential pair)
+M1 Vdd Vplus n1 Vdd PMOS L=0.12u W=2.0u  ; PMOS transistor M1
+M2 Vdd Vminus n2 Vdd PMOS L=0.12u W=2.0u ; PMOS transistor M2
+
+* NMOS Transistors (M3 and M4 in the middle, connected to output)
+M3 n1 Vplus Vout 0 NMOS L=0.12u W=1.0u   ; NMOS transistor M3
+M4 n2 Vminus Vout 0 NMOS L=0.12u W=1.0u  ; NMOS transistor M4
+
+* NMOS Current Source Transistor (M5), biased by Vref
+M5 Vout Vref 0 0 NMOS L=0.12u W=1.0u     ; NMOS transistor M5, providing current source for differential pair
+
+* Simulation Commands
+.tran 0.1ms 2ms                          ; Transient analysis from 0 to 2ms with 0.1ms step
+
+* Plot Commands to Observe Input and Output Signals
+.control
+run
+plot v(Vplus) v(Vminus) v(Vout)          ; Plot differential inputs (Vplus, Vminus) and output (Vout)
+.endc
+
+* End of Circuit Definition
+.end
